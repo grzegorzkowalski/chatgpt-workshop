@@ -1,0 +1,6 @@
+@ChatGPTWorkshop_HostAddress = http://localhost:5123
+
+GET {{ChatGPTWorkshop_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
