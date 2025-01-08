@@ -76,16 +76,16 @@
 - Omówienie wyzwań, jakie napotkali uczestnicy.
 - Dyskusja o możliwościach dalszego rozwoju aplikacji (np. dodanie funkcji logowania).
 
+# Warsztat Integracji React + C# .NET z API ChatGPT
 
-// === Warsztat Integracji React + C# .NET z API ChatGPT ===
+## CZĘŚĆ 1: BACKEND W C# .NET
 
-// === CZĘŚĆ 1: BACKEND W C# .NET ===
+### Krok 1: Utworzenie projektu
+1. Otwórz Visual Studio i stwórz nowy projekt **ASP.NET Core Web API**.
+2. Nazwij projekt **ChatGPTBackend**.
+3. Skonfiguruj aplikację w pliku `Program.cs`:
 
-// === Krok 1: Utworzenie projektu ===
-// 1. Otwórz Visual Studio i stwórz nowy projekt "ASP.NET Core Web API".
-// 2. Nazwij projekt "ChatGPTBackend".
-// 3. W pliku Program.cs skonfiguruj aplikację:
-
+```csharp
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -100,11 +100,12 @@ app.UseCors(policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader())
 app.MapControllers();
 
 app.Run();
+```
+### Krok 2: Stwórz kontroler
+1. Dodaj folder `Controllers`.
+2. Stwórz plik `ChatController.cs`:
 
-// === Krok 2: Stwórz kontroler ===
-// 1. Dodaj folder "Controllers".
-// 2. Stwórz plik "ChatController.cs":
-
+```
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Http;
 using System.Text;
@@ -160,105 +161,113 @@ public class ChatRequest
 {
     public string Message { get; set; }
 }
+```
 
-// === Krok 3: Testuj backend ===
-// 1. Użyj Postmana do wysłania POST na adres http://localhost:5000/api/chat/send
-// 2. Prześlij JSON: {"message": "What are the opening hours of La Cuisine?"}
+### Krok 3: Testuj backend
+Użyj Postmana do wysłania POST na adres http://localhost:5000/api/chat/send.
+Prześlij JSON:
+```
+{
+    "message": "What are the opening hours of La Cuisine?"
+}
+```
 
-// === CZĘŚĆ 2: FRONTEND W REACT ===
+## CZĘŚĆ 2: FRONTEND W REACT
+Krok 1: Utworzenie projektu
 
-// === Krok 1: Utworzenie projektu ===
-// 1. W terminalu uruchom:
-//    npm create vite@latest chatgpt-frontend --template react
-// 2. Przejdź do katalogu projektu:
-//    cd chatgpt-frontend
-// 3. Zainstaluj zależności:
-//    npm install
-// 4. Zainstaluj axios:
-//    npm install axios
-// 5. Zainstaluj Material-UI:
-//    npm install @mui/material @emotion/react @emotion/styled
+W terminalu uruchom:
+`npm create vite@latest chatgpt-frontend --template react`
 
-// === Krok 2: Interfejs użytkownika ===
-// W pliku src/App.jsx:
+Przejdź do katalogu projektu:
+`cd chatgpt-frontend`
 
+Zainstaluj zależności:
+`npm install`
+
+Zainstaluj axios i Material-UI:
+`npm install axios @mui/material @emotion/react @emotion/styled`
+
+### Krok 2: Interfejs użytkownika
+W pliku src/App.jsx:
+```
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Container, TextField, Button, Typography, List, ListItem, ListItemButton, ListItemText, Box } from '@mui/material';
 
 function App() {
-  const [message, setMessage] = useState('');
-  const [response, setResponse] = useState('');
+    const [message, setMessage] = useState('');
+    const [response, setResponse] = useState('');
 
-  const suggestedQuestions = [
-    "What are the opening hours of La Cuisine?",
-    "What are the specials at La Cuisine?",
-    "Does La Cuisine have vegetarian options?",
-    "Can I make a reservation for dinner?",
-    "What is the address of La Cuisine?",
-    "What payment methods are accepted?",
-    "Do you offer gluten-free options?",
-    "Is there outdoor seating available?",
-    "What is the most popular dish?",
-    "Are there any current promotions or discounts?"
-  ];
+    const suggestedQuestions = [
+        "What are the opening hours of La Cuisine?",
+        "What are the specials at La Cuisine?",
+        "Does La Cuisine have vegetarian options?",
+        "Can I make a reservation for dinner?",
+        "What is the address of La Cuisine?",
+        "What payment methods are accepted?",
+        "Do you offer gluten-free options?",
+        "Is there outdoor seating available?",
+        "What is the most popular dish?",
+        "Are there any current promotions or discounts?"
+    ];
 
-  const sendMessage = async () => {
-    try {
-      const res = await axios.post('http://localhost:5000/api/chat/send', {
-        message: message,
-      });
-      setResponse(JSON.parse(res.data).choices[0].message.content);
-    } catch (error) {
-      console.error(error);
-      setResponse('Error communicating with backend.');
-    }
-  };
+    const sendMessage = async () => {
+        try {
+            const res = await axios.post('http://localhost:5000/api/chat/send', { message });
+            setResponse(JSON.parse(res.data).choices[0].message.content);
+        } catch (error) {
+            console.error(error);
+            setResponse('Error communicating with backend.');
+        }
+    };
 
-  return (
-    <Container maxWidth="sm">
-      <Box sx={{ textAlign: 'center', mt: 4 }}>
-        <Typography variant="h4" gutterBottom>ChatGPT Restaurant Chatbot</Typography>
-        <TextField
-          fullWidth
-          multiline
-          rows={4}
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          placeholder="Ask a question about La Cuisine..."
-          variant="outlined"
-          margin="normal"
-        />
-        <Button variant="contained" color="primary" onClick={sendMessage} fullWidth>
-          Send
-        </Button>
-        <Box sx={{ mt: 2 }}>
-          <Typography variant="h6">Suggested Questions:</Typography>
-          <List>
-            {suggestedQuestions.map((question, index) => (
-              <ListItem key={index} disablePadding>
-                <ListItemButton onClick={() => setMessage(question)}>
-                  <ListItemText primary={question} />
-                </ListItemButton>
-              </ListItem>
-            ))}
-          </List>
-        </Box>
-        <Box sx={{ mt: 4 }}>
-          <Typography variant="h6">Response:</Typography>
-          <Typography variant="body1" sx={{ whiteSpace: 'pre-line' }}>
-            {response}
-          </Typography>
-        </Box>
-      </Box>
-    </Container>
-  );
+    return (
+        <Container maxWidth="sm">
+            <Box sx={{ textAlign: 'center', mt: 4 }}>
+                <Typography variant="h4" gutterBottom>ChatGPT Restaurant Chatbot</Typography>
+                <TextField
+                    fullWidth
+                    multiline
+                    rows={4}
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    placeholder="Ask a question about La Cuisine..."
+                    variant="outlined"
+                    margin="normal"
+                />
+                <Button variant="contained" color="primary" onClick={sendMessage} fullWidth>
+                    Send
+                </Button>
+                <Box sx={{ mt: 2 }}>
+                    <Typography variant="h6">Suggested Questions:</Typography>
+                    <List>
+                        {suggestedQuestions.map((question, index) => (
+                            <ListItem key={index} disablePadding>
+                                <ListItemButton onClick={() => setMessage(question)}>
+                                    <ListItemText primary={question} />
+                                </ListItemButton>
+                            </ListItem>
+                        ))}
+                    </List>
+                </Box>
+                <Box sx={{ mt: 4 }}>
+                    <Typography variant="h6">Response:</Typography>
+                    <Typography variant="body1" sx={{ whiteSpace: 'pre-line' }}>
+                        {response}
+                    </Typography>
+                </Box>
+            </Box>
+        </Container>
+    );
 }
 
 export default App;
+```
 
-// === Krok 3: Uruchom aplikację ===
-// 1. Uruchom backend w Visual Studio (F5).
-// 2. Uruchom frontend:
-//    npm run dev
-// 3. Zadaj pytania, np. "What are the specials at La Cuisine?" lub "Does La Cuisine have vegetarian options?"
+### Krok 3: Uruchom aplikację
+Uruchom backend w Visual Studio (F5).
+Uruchom frontend:
+`npm run dev`
+Zadaj pytania, np.:
+"What are the specials at La Cuisine?"
+"Does La Cuisine have vegetarian options?"
